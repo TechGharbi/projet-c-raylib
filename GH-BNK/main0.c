@@ -1,55 +1,75 @@
 #include <stdio.h>
 #include <raylib.h>
 
-// Fonction de tri à bulles
-void bubbleSort(int arr[], int n) {
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - i - 1; j++) {
-            if (arr[j] > arr[j + 1]) {
-                // Swap arr[j] and arr[j + 1]
-                int temp = arr[j];
-                arr[j] = arr[j + 1];
-                arr[j + 1] = temp;
+//pour dessiner un ensemble de rectangles
+void drawArray(int arr[], int n,int posX)
+{
+
+    for (int i = 0; i < n; i++)
+    {
+        DrawRectangle(posX, 200 - arr[i], 50, arr[i], MAROON);
+        DrawText(TextFormat("%i", arr[i]), posX + 15, 210, 10, DARKGRAY);
+        posX += 60;
+    }
+}
+
+// Fonction de tri rapide (quicksort)
+void quickSort(int arr[], int low, int high)
+{   // Verifie si l'indice bas est inferieur Ã  l'indice haut, sinon, le tableau est dejÃ  trie
+    if (low < high)
+    {
+        int pivot = arr[high];
+        int i = (low - 1);
+        for (int j = low; j <= high - 1; j++)
+        {
+            if (arr[j] < pivot)
+            {
+                i++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
             }
         }
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+        int pi = (i + 1);
+        // Applique recursivement le tri rapide aux sous-tableaux Ã  gauche et Ã  droite du pivot
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
     }
 }
 
 int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
+    
+    InitWindow(screenWidth, screenHeight, "Quick Sort Visualization");
 
-    //
-// Initialiser raylib
-    InitWindow(screenWidth, screenHeight, "Bubble Sort with raylib");
+    // Demander Ã  l'utilisateur de fournir la taille du tableau
+    int n;
+    printf("Entrez la taille du tableau : ");
+    scanf("%d", &n);
 
-    // Déclarer un tableau à trier
-    int arr[] = {64, 34, 25, 12, 22, 11, 90};
-
-    // Taille du tableau
-    int n = sizeof(arr) / sizeof(arr[0]);
-
-    // Trier le tableau
-    bubbleSort(arr, n);
-
-    // Boucle principale
+    // Demander Ã  l'utilisateur de fournir les Ã©lÃ©ments du tableau
+    int arr[n];
+    printf("Entrez les elements du tableau :\n");
+    for (int i = 0; i < n; i++) {
+        printf("Element %d : ", i + 1);
+        scanf("%d", &arr[i]);
+    }
+    SetTargetFPS(60);
+   
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-        // Effacer l'écran
+        // Effacer l'Ã©cran
         ClearBackground(RAYWHITE);
-
-        // Afficher le tableau trié
-
- for (int i = 0; i < n; i++) {
-            DrawRectangle(i * 80, screenHeight - arr[i], 60, arr[i], RED);
-        }
-
+        
+        drawArray(arr, n,400);
+        quickSort(arr, 0, n - 1);
         EndDrawing();
     }
-
-    // Fermer raylib
     CloseWindow();
-
     return 0;
 }

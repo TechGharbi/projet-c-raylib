@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1704025224 source:c:\users\lenovo\documents\tp_isil_s3\projetraylib5\main.c
+	<stdio.h>
+	"raylib.h"
+	<stdio.h>
+

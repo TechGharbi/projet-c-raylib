@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1703958539 source:c:\users\lenovo\documents\tp_isil_s3\projetraylib\main.c
+	"raylib.h"
+
+1703890616 c:\msys64\raygui-4.0\src\raygui.h
+	"raylib.h"
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<stdarg.h>
+	<math.h>
+

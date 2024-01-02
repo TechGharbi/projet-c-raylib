@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <raylib.h>
 
-// Fonction de tri à bulles
+// Fonction de tri Ã  bulles
 void bubbleSort(int arr[], int n) {
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
@@ -19,15 +19,21 @@ int main() {
     const int screenWidth = 800;
     const int screenHeight = 450;
 
-    //
-// Initialiser raylib
+    // Initialiser raylib
     InitWindow(screenWidth, screenHeight, "Bubble Sort with raylib");
 
-    // Déclarer un tableau à trier
-    int arr[] = {64, 34, 25, 12, 22, 11, 90};
+    // Demander Ã  l'utilisateur de fournir la taille du tableau
+    int n;
+    printf("Entrez la taille du tableau : ");
+    scanf("%d", &n);
 
-    // Taille du tableau
-    int n = sizeof(arr) / sizeof(arr[0]);
+    // Demander Ã  l'utilisateur de fournir les Ã©lÃ©ments du tableau
+    int arr[n];
+    printf("Entrez les elements du tableau :\n");
+    for (int i = 0; i < n; i++) {
+        printf("Element %d : ", i + 1);
+        scanf("%d", &arr[i]);
+    }
 
     // Trier le tableau
     bubbleSort(arr, n);
@@ -36,12 +42,11 @@ int main() {
     while (!WindowShouldClose()) {
         BeginDrawing();
 
-        // Effacer l'écran
+        // Effacer l'Ã©cran
         ClearBackground(RAYWHITE);
 
-        // Afficher le tableau trié
-
- for (int i = 0; i < n; i++) {
+        // Afficher le tableau triÃ©
+        for (int i = 0; i < n; i++) {
             DrawRectangle(i * 80, screenHeight - arr[i], 60, arr[i], RED);
         }
 

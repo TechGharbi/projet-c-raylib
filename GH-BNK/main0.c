@@ -1,10 +1,10 @@
+
 #include <stdio.h>
 #include <raylib.h>
 
-void drawArray(int arr[], int n, int posX, int posY, const char* message, int textSize, int textPosY)
+// Fonction pour dessiner le tableau
+void drawArray(int arr[], int n, int posX, int posY,int spacingX)
 {
-    // Dessine le message au-dessous du tableau
-    DrawText(message, posX, textPosY, textSize, DARKGRAY);
     // Trouve la valeur maximale dans le tableau
     int maxArrayValue = 0;
     for (int i = 0; i < n; i++)
@@ -15,12 +15,15 @@ void drawArray(int arr[], int n, int posX, int posY, const char* message, int te
     // Dessine les rectangles représentant le tableau avec la longueur en fonction des valeurs
     for (int i = 0; i < n; i++)
     {
+         // La couleur du rectangle dépend de la position dans le tableau
+        Color color = (Color){255 - (i * 255 / n), 0, i * 255 / n, 255};
+         // La hauteur du rectangle est ajustée en fonction de la valeur actuelle dans le tableau
         int rectHeight = (int)(((float)arr[i] / maxArrayValue) * 160); // Ajustez 150 en fonction de la hauteur maximale souhaitée
-        DrawRectangle(posX, posY - rectHeight, 35, rectHeight, BLUE);
-        DrawText(TextFormat("%i", arr[i]), posX + 10, posY + 10, textSize, DARKGRAY);
-        posX += 45; // Ajustez l'espace entre les rectangles
+       DrawRectangle(posX + i * (20 + spacingX), posY + 200 - arr[i], 35, arr[i], color);
+        DrawText(TextFormat("%i", arr[i]), posX + i * (20 + spacingX) + 5, posY + 180 - arr[i], 10, DARKGRAY);
     }
 }
+
 // Fonction de tri rapide (quicksort)
 void quickSort(int arr[], int low, int high)
 {
@@ -46,33 +49,40 @@ void quickSort(int arr[], int low, int high)
         quickSort(arr, pi + 1, high);
     }
 }
-// Fonction pour copier un tableau
-void copyArray(int src[], int dest[], int n)
-{
-    for (int i = 0; i < n; i++)
-    {
-        dest[i] = src[i];
-    }
-}
+
+
 int main()
 {
     const int screenWidth = 1200;
     const int screenHeight = 450;
-
+    int sortingDone = 0;
     int n;
+     printf("Entrer la taille du tableau (ne depasse pas 10): \n");
     do{
-        printf("Entrez la taille du tableau : ");//assurer que le nombre des elements est positive
         scanf("%d", &n);
-        if (n<=0)
-         printf("erreur. entrer une valeur positive \n");
-    }while(n<=0);
+        if (n > 10)
+         printf("Entrer une valeur ne depasse pas 10.\n");
+    }while(n > 10);
+
+     int sortButtonPosX = 50;
+    int exitButtonPosX = 150;
+
     int originalArr[n];
     int sortedArr[n];
-    printf("Entrez les elements du tableau :\n");
+
+    printf("Entrer %d elements ne depassant pas 150\n", n);
+
     for (int i = 0; i < n; i++)
     {
+        do
+            {
         printf("Element %d : ", i + 1);
         scanf("%d", &originalArr[i]);
+                if (originalArr[i] > 150)
+            {
+                printf("Entrer une valeur ne depasse pas 150.\n");
+            }
+            }while (originalArr[i] > 150);
     }
     SetTargetFPS(60);
     InitWindow(screenWidth, screenHeight, "Quick Sort Visualization");
@@ -80,26 +90,44 @@ int main()
    while (!WindowShouldClose())
 {
     BeginDrawing();
-
     ClearBackground(RAYWHITE);
 
-    // Dessine le tableau avant le tri avec des paramètres personnalisés
-    drawArray(originalArr, n, 50, 300, "Tableau avant le tri", 20, 350);
+   // Check for button clicks
+        if (CheckCollisionPointRec(GetMousePosition(), (Rectangle){sortButtonPosX, 400, 80, 30}) &&
+            IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+           // Si le bouton "Trier" est cliqué, effectuez le tri
+            for (int i = 0; i < n; i++)
+            {
+                sortedArr[i] =originalArr[i];
+            }
+            quickSort(sortedArr, 0, n - 1);
+            sortingDone = 1;// Définissez le drapeau pour indiquer que le tri a été effectué
+        }
+        else if (CheckCollisionPointRec(GetMousePosition(), (Rectangle){exitButtonPosX, 400, 80, 30}) &&
+                 IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+           // Si le bouton "Sortir" est cliqué, fermez la fenêtre
+            break;
+        }
+    // Draw the buttons
+        DrawRectangle(sortButtonPosX, 400, 80, 30, LIGHTGRAY);
+        DrawText("Trier", sortButtonPosX + 20, 405, 10, DARKGRAY);
 
-    // Copie le tableau original pour le tri
-    copyArray(originalArr, sortedArr, n);
+        DrawRectangle(exitButtonPosX, 400, 80, 30, LIGHTGRAY);
+        DrawText("Sortir", exitButtonPosX + 20, 405, 10, DARKGRAY);
 
-    // Trie le tableau copié
-    quickSort(sortedArr, 0, n - 1);
+    // Draw the arrays
+        DrawText("Tableau avant le tri rapide", 50, 300, 20, DARKGRAY);
+        drawArray(originalArr, n, 50, 50, 30);
 
-    // Dessine le tableau après le tri avec des paramètres personnalisés
-    drawArray(sortedArr, n, 650, 300, "Tableau apres le tri", 20, 350);
-
+     if (sortingDone)
+        {
+            DrawText("Tableau apres le tri rapide", 600, 300, 20, DARKGRAY);
+            drawArray(sortedArr, n, 600, 50, 30);
+        }
     EndDrawing();
 }
     CloseWindow();
     return 0;
 }
-
-
-   

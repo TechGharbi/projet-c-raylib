@@ -1,59 +1,94 @@
 #include <stdio.h>
 #include <raylib.h>
 
-// Fonction pour dessiner le tableau
-void drawArray(int arr[], int n, int posX, int posY, const char* message, int textSize, int textPosY)
+#define MAX_ELEMENTS 10
+
+// Structure pour stocker une paire d'élément et de couleur
+typedef struct
 {
-    // Dessine le message au-dessous du tableau
+    int value;
+    Color color;
+} Element;
+
+Color elementColors[MAX_ELEMENTS] = {
+    MAGENTA, GREEN, YELLOW, RED, BLUE, ORANGE, GRAY, (Color){0, 255, 255, 255}, BLACK, WHITE};
+
+void drawArray(Element arr[], int n, int posX, int posY, const char *message, int textSize, int textPosY)
+{
     DrawText(message, posX, textPosY, textSize, BLACK);
-    // Trouve la valeur maximale dans le tableau
+
     int maxArrayValue = 0;
     for (int i = 0; i < n; i++)
     {
-        if (arr[i] > maxArrayValue)
-            maxArrayValue = arr[i];
+        if (arr[i].value > maxArrayValue)
+            maxArrayValue = arr[i].value;
     }
-    // Dessine les rectangles représentant le tableau avec la longueur en fonction des valeurs
+
     for (int i = 0; i < n; i++)
     {
-         Color color = (Color){255, i * 255 / n, 0, 255}; //pour les couleurs chaudes
-        //Color color = (Color){255 - (i * 255 / n), 0, i * 255 / n, 255};  pour les couleurs froides
+        int rectHeight = (int)(((float)arr[i].value / maxArrayValue) * 160);
 
-         int rectHeight = (int)(((float)arr[i] / maxArrayValue) * 160);
+        DrawRectangle(posX + i * (35 + 10), posY - rectHeight, 35, rectHeight, arr[i].color);
 
-        DrawText(TextFormat("%i", arr[i]), posX + i * (35 + 10), posY - rectHeight - 20, textSize, BLACK);
-        DrawRectangle(posX + i * (35 + 10), posY - rectHeight, 35, rectHeight, color);
+        char numberText[10];
+        sprintf(numberText, "%i", arr[i].value);
+        DrawText(numberText, posX + i * (35 + 10) + 10, posY - rectHeight + 5, textSize, BLACK);
     }
 }
 
-// Fonction de tri rapide (quicksort)
-void quickSort(int arr[], int low, int high)
+void moveRectangle(Element arr[], int index1, int index2, int posX, int posY, int* iterationsCounter)
 {
+    Element temp = arr[index1];
+    arr[index1] = arr[index2];
+    arr[index2] = temp;
+
+    // Dessine le tableau après chaque échange
+    BeginDrawing();
+    ClearBackground(RAYWHITE);
+    drawArray(arr, MAX_ELEMENTS, posX, posY, "Tableau en cours de tri", 20, posY + 180);
+    EndDrawing();
+
+     for (int i = 0; i < 100000000; i++)
+    {
+        // Attente
+    }
+}
+
+int partition(Element arr[], int low, int high, int posX, int posY, int* iterationsCounter)
+{
+    int pivot = arr[high].value;
+    int i = (low - 1);
+
+    for (int j = low; j <= high - 1; j++)
+    {
+        if (arr[j].value < pivot)
+        {
+            i++;
+            moveRectangle(arr, i, j, posX, posY, iterationsCounter);
+        }
+    }
+
+    moveRectangle(arr, i + 1, high, posX, posY, iterationsCounter);
+
+    return i + 1;
+}
+
+void quickSort(Element arr[], int low, int high, int posX, int posY)
+{
+    int iterationsCounter = 0;
+    int* pIterationsCounter = &iterationsCounter;
+
     if (low < high)
     {
-        int pivot = arr[high];
-        int i = (low - 1);
-        for (int j = low; j <= high - 1; j++)
-        {
-            if (arr[j] < pivot)
-            {
-                i++;
-                int temp = arr[i];
-                arr[i] = arr[j];
-                arr[j] = temp;
-            }
-        }
-        int temp = arr[i + 1];
-        arr[i + 1] = arr[high];
-        arr[high] = temp;
-        int pi = (i + 1);
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+        int pi = partition(arr, low, high, posX, posY, pIterationsCounter);
+
+        quickSort(arr, low, pi - 1, posX, posY);
+        quickSort(arr, pi + 1, high, posX, posY);
     }
 }
 
 // Fonction pour copier un tableau
-void copyArray(int src[], int dest[], int n)
+void copyArray(Element src[], Element dest[], int n)
 {
     for (int i = 0; i < n; i++)
     {
@@ -67,38 +102,39 @@ int main()
     const int screenHeight = 450;
 
     int n;
-     printf("Entrer la taille du tableau (ne depasse pas 10) : \n");
-     do{
+    printf("Entrer la taille du tableau (ne depasse pas 10) : \n");
+    do
+    {
         scanf("%d", &n);
-         if (n <= 0)
+        if (n <= 0)
             printf("Erreur. Entrez une valeur positive.\n");
-            else
-                if(n>10)
-                printf("Erreur. Entrer une valeur ne depasse pas 10 \n");
-    } while (n <= 0 || n>10);
+        else if (n > 10)
+            printf("Erreur. Entrez une valeur ne depasse pas 10 \n");
+    } while (n <= 0 || n > 10);
 
-    int originalArr[n];
-    int sortedArr[n];
+    Element originalArr[MAX_ELEMENTS];
+    Element sortedArr[MAX_ELEMENTS];
 
-    printf("Entrer %d elements :\n", n);
     for (int i = 0; i < n; i++)
     {
+        originalArr[i].color = elementColors[i];
         printf("Element %d : ", i + 1);
-        scanf("%d", &originalArr[i]);
+        scanf("%d", &originalArr[i].value);
     }
+
     SetTargetFPS(60);
     InitWindow(screenWidth, screenHeight, "Quick Sort Visualization");
 
     // Ajouter un bouton "Trier" à la fenêtre
-    Rectangle sortButtonRect = { 50, 400, 100, 40 };
+    Rectangle sortButtonRect = {50, 400, 100, 40};
     bool sortButtonClicked = false;
 
     // Ajouter un bouton "Quitter" à la fenêtre
-    Rectangle quitButtonRect = { 165, 400, 100, 40 };
+    Rectangle quitButtonRect = {165, 400, 100, 40};
     bool quitButtonClicked = false;
 
     // Ajouter un bouton "REPETER" à la fenêtre
-    Rectangle repeatButtonRect = { 280, 400, 100, 40 };
+    Rectangle repeatButtonRect = {280, 400, 100, 40};
     bool repeatButtonClicked = false;
 
     bool isSorted = false; // Ajouter un indicateur pour savoir si le tableau est trié
@@ -116,8 +152,7 @@ int main()
 
         ClearBackground(RAYWHITE);
 
-        // Dessine le tableau avant le tri avec des paramètres personnalisés
-        drawArray(originalArr, n, 50, 300, "Tableau avant le tri", 20, 350);
+        drawArray(originalArr, n, 120, 300, "Tableau avant le tri", 20, 350);
 
         // Affiche le bouton "Trier"
         DrawRectangleRec(sortButtonRect, sortButtonClicked ? LIGHTGRAY : BLUE);
@@ -135,14 +170,14 @@ int main()
         if (sortButtonClicked && !isSorted)
         {
             copyArray(originalArr, sortedArr, n);
-            quickSort(sortedArr, 0, n - 1);
+            quickSort(sortedArr, 0, n - 1, 150, 300);
             isSorted = true; // Met à jour l'indicateur pour éviter la répétition du tri
         }
 
         // Dessine le tableau après le tri avec des paramètres personnalisés
         if (isSorted)
         {
-            drawArray(sortedArr, n, 650, 300, "Tableau apres le tri", 20, 350);
+            drawArray(sortedArr, n, 600, 300, "Tableau apres le tri", 20, 350);
         }
 
         // Redonne d'autres éléments pour trier un autre tableau si le bouton "REPETER" est cliqué
@@ -150,7 +185,8 @@ int main()
         {
             // Réinitialiser les tableaux et l'indicateur de tri
             isSorted = false;
-            do {
+            do
+            {
                 printf("Entrer la nouvelle taille du tableau : \n");
                 scanf("%d", &n);
                 if (n <= 0)
@@ -160,8 +196,9 @@ int main()
             printf("Entrer %d nouveaux elements :\n", n);
             for (int i = 0; i < n; i++)
             {
+                originalArr[i].color = elementColors[i];
                 printf("Element %d : ", i + 1);
-                scanf("%d", &originalArr[i]);
+                scanf("%d", &originalArr[i].value);
             }
         }
 
@@ -177,4 +214,8 @@ int main()
     CloseWindow();
     return 0;
 }
+
+
+
+
 

@@ -11,12 +11,12 @@ typedef struct
 } Element;
 
 Color elementColors[MAX_ELEMENTS] = {
-    MAGENTA, GREEN, YELLOW, RED, BLUE, ORANGE, GRAY, (Color){0, 255, 255, 255}, BLACK, WHITE};
+ (Color){100, 200, 50, 200},ORANGE, (Color){200, 50, 100, 200}, YELLOW, RED, BLUE, GRAY, (Color){0, 255, 255, 255},GREEN };
 
 void drawArray(Element arr[], int n, int posX, int posY, const char *message, int textSize, int textPosY)
 {
     DrawText(message, posX, textPosY, textSize, BLACK);
-
+     const int screenHeight = 450;
     int maxArrayValue = 0;
     for (int i = 0; i < n; i++)
     {
@@ -26,13 +26,13 @@ void drawArray(Element arr[], int n, int posX, int posY, const char *message, in
 
     for (int i = 0; i < n; i++)
     {
-        int rectHeight = (int)(((float)arr[i].value / maxArrayValue) * 160);
+    int rectHeight = (int)(((float)arr[i].value / maxArrayValue) * (screenHeight - 200));
 
-        DrawRectangle(posX + i * (35 + 10), posY - rectHeight, 35, rectHeight, arr[i].color);
+        DrawRectangle(posX + i * (60 + 10), posY - rectHeight, 60, rectHeight, arr[i].color);
 
         char numberText[10];
         sprintf(numberText, "%i", arr[i].value);
-        DrawText(numberText, posX + i * (35 + 10) + 10, posY - rectHeight + 5, textSize, BLACK);
+        DrawText(numberText, posX + i * (60 + 10) + 20, posY - rectHeight + 5, textSize, BLACK);
     }
 }
 
@@ -126,16 +126,16 @@ int main()
     InitWindow(screenWidth, screenHeight, "Quick Sort Visualization");
 
     // Ajouter un bouton "Trier" à la fenêtre
-    Rectangle sortButtonRect = {50, 400, 100, 40};
-    bool sortButtonClicked = false;
+    Rectangle sortB_Rect = {50, 400, 100, 40};
+    bool sortB_Cl = false;
 
     // Ajouter un bouton "Quitter" à la fenêtre
-    Rectangle quitButtonRect = {165, 400, 100, 40};
-    bool quitButtonClicked = false;
+    Rectangle quitB_Rect = {165, 400, 100, 40};
+    bool quitB_Cl = false;
 
     // Ajouter un bouton "REPETER" à la fenêtre
-    Rectangle repeatButtonRect = {280, 400, 100, 40};
-    bool repeatButtonClicked = false;
+    Rectangle repeatB_Rect = {280, 400, 100, 40};
+    bool repeatB_Cl = false;
 
     bool isSorted = false; // Ajouter un indicateur pour savoir si le tableau est trié
 
@@ -144,44 +144,43 @@ int main()
         // Mise à jour de la logique des boutons
         Vector2 mousePoint = GetMousePosition();
 
-        sortButtonClicked = CheckCollisionPointRec(mousePoint, sortButtonRect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
-        quitButtonClicked = CheckCollisionPointRec(mousePoint, quitButtonRect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
-        repeatButtonClicked = CheckCollisionPointRec(mousePoint, repeatButtonRect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
-
+         sortB_Cl = CheckCollisionPointRec(mousePoint, sortB_Rect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
+        quitB_Cl = CheckCollisionPointRec(mousePoint, quitB_Rect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
+        repeatB_Cl = CheckCollisionPointRec(mousePoint, repeatB_Rect) && IsMouseButtonReleased(MOUSE_LEFT_BUTTON);
         BeginDrawing();
 
         ClearBackground(RAYWHITE);
 
-        drawArray(originalArr, n, 120, 300, "Tableau avant le tri", 20, 350);
+        drawArray(originalArr, n, 50, 300, "Tableau avant le tri", 20, 350);
 
-        // Affiche le bouton "Trier"
-        DrawRectangleRec(sortButtonRect, sortButtonClicked ? LIGHTGRAY : BLUE);
-        DrawText("Trier", sortButtonRect.x + 10, sortButtonRect.y + 10, 20, BLACK);
+       // Affiche le bouton "Trier"
+        DrawRectangleRec(sortB_Rect, sortB_Cl ? LIGHTGRAY : BLUE);
+        DrawText("Trier", sortB_Rect.x + 10, sortB_Rect.y + 10, 20, BLACK);
 
         // Affiche le bouton "Quitter"
-        DrawRectangleRec(quitButtonRect, quitButtonClicked ? LIGHTGRAY : RED);
-        DrawText("Quitter", quitButtonRect.x + 10, quitButtonRect.y + 10, 20, BLACK);
+        DrawRectangleRec(quitB_Rect, quitB_Cl ? LIGHTGRAY : RED);
+        DrawText("Quitter", quitB_Rect.x + 10, quitB_Rect.y + 10, 20, BLACK);
 
         // Affiche le bouton "REPETER"
-        DrawRectangleRec(repeatButtonRect, repeatButtonClicked ? LIGHTGRAY : GREEN);
-        DrawText("REPETER", repeatButtonRect.x + 10, repeatButtonRect.y + 10, 17, BLACK);
+        DrawRectangleRec(repeatB_Rect, repeatB_Cl ? LIGHTGRAY : GREEN);
+        DrawText("REPETER", repeatB_Rect.x + 10, repeatB_Rect.y + 10, 17, BLACK);
 
         // Trie le tableau si le bouton "Trier" est cliqué
-        if (sortButtonClicked && !isSorted)
+        if (sortB_Cl && !isSorted)
         {
             copyArray(originalArr, sortedArr, n);
-            quickSort(sortedArr, 0, n - 1, 150, 300);
+            quickSort(sortedArr, 0, n - 1, 50, 300);
             isSorted = true; // Met à jour l'indicateur pour éviter la répétition du tri
         }
 
         // Dessine le tableau après le tri avec des paramètres personnalisés
         if (isSorted)
         {
-            drawArray(sortedArr, n, 600, 300, "Tableau apres le tri", 20, 350);
+            drawArray(sortedArr, n, 650, 300, "Tableau apres le tri", 20, 350);
         }
 
         // Redonne d'autres éléments pour trier un autre tableau si le bouton "REPETER" est cliqué
-        if (repeatButtonClicked)
+        if (repeatB_Cl)
         {
             // Réinitialiser les tableaux et l'indicateur de tri
             isSorted = false;
@@ -205,7 +204,7 @@ int main()
         EndDrawing();
 
         // Quitte l'application si le bouton "Quitter" est cliqué
-        if (quitButtonClicked)
+        if (quitB_Cl)
         {
             break;
         }
@@ -214,8 +213,3 @@ int main()
     CloseWindow();
     return 0;
 }
-
-
-
-
-
